@@ -25,6 +25,7 @@ app.get('/miejsca', function(req, res) {
 });
 
 
+
 app.post('/login', authenticateToken, (req, res)  =>{
     req.json(posts.filter(post => post.req.body === req.user.name))
     console.log("success: ", process.env);
@@ -45,8 +46,8 @@ function authenticateToken(req, res, nex){
 })
 }
 
-app.listen(8000, function() {
-    console.log('listen to port 8000: ');
+app.listen(4000, function() {
+    console.log('listen to port 4000: ');
 });
 
 // db.end();
