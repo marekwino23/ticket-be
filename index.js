@@ -19,6 +19,20 @@ app.use(cookieParser());
 
 app.use(express.json());
 
+
+app.post('/register', (req, res) =>{
+    const crypto = req.body.password;
+    db.query(`SELECT * FROM users where email="${req.body.email}"`, function (error, results, fields) {
+        if(error) return res.status(400).json({ user: 'email already used in registration'});
+        db.query(`INSERT INTO users (name, email, password) VALUES ("${req.body.name}","${req.body.email}","${crypto}")`, function (error, results, fields) {
+            console.log('db login :', error, results, fields);
+            if(error) return res.status(400);
+            res.status(200).json({ ok: true });  
+        }); 
+    });
+})
+
+
 app.post('/login', (req, res)  =>{
     const crypto = req.body.password;
     db.query(`SELECT * FROM users where email="${req.body.email}" AND password="${crypto}"`, function (error, results, fields) {
@@ -28,16 +42,16 @@ app.post('/login', (req, res)  =>{
             const signOptions = {
                 expiresIn: '1d',
               };
-              const CurrentDate = new Date();
-              CurrentDate.setMonth(CurrentDate.getMonth() + 1)
             const { access_token, refresh_token } = generateTokens(req.body, signOptions);
             console.log('cheers: '. access_token);
             const cookieOptions = {
                 httpOnly: true,
-                expires: CurrentDate
+                expires: new Date(Date.now() + 900000),
+                domain: '.app.localhost',
+                sameSite: 'none'
             };
-            res.cookie('access_token', access_token, cookieOptions)
-            res.cookie('refresh_token', refresh_token, { ...cookieOptions, expiresIn: '30d' });
+            res.cookie('access_token', access_token, {...cookieOptions})
+            res.cookie('refresh_token', refresh_token, { ...cookieOptions, expires: new Date(Date.now() + 900000) });
             res.status(200).json({ ok: true });
         }
     });
@@ -84,6 +98,7 @@ app.post('/refresh', (req, res)  =>{
 
 app.get('/miejsca', authenticateToken, function(req, res) {
     let records;
+    console.log('req: ', req, req.signedCookies, req.cookies);
     db.query('SELECT * FROM miejsca', function (error, results, fields) {
         if (error) throw error;
         console.log('The solution is: ', results);
