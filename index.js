@@ -1,6 +1,8 @@
 require('dotenv').config();
 
 const express = require('express');
+const bcrypt = require("bcrypt");
+const saltRounds = 10;
 const cors = require('cors');
 const jwt = require('jsonwebtoken');
 const cookieParser = require('cookie-parser')
@@ -20,18 +22,20 @@ app.use(cookieParser());
 app.use(express.json());
 
 
-app.post('/register', (req, res) =>{
-    const crypto = req.body.password;
+app.post('/register', (req, res) => {
     db.query(`SELECT * FROM users where email="${req.body.email}"`, function (error, results, fields) {
-        if(error) return res.status(400).json({ user: 'email already used in registration'});
-        db.query(`INSERT INTO users (name, email, password) VALUES ("${req.body.name}","${req.body.email}","${crypto}")`, function (error, results, fields) {
+        if(error) return res.status(400).json({ status: 'email already used in registration'});
+        console.log("hi");
+        let saltRounds = 10
+        let myString = 'req.body.password'
+        db.query(`INSERT INTO users(name, email, password) VALUES("${req.body.name}","${req.body.email}", MD5("${myString}"))`, function (error, results, fields) {
             console.log('db login :', error, results, fields);
-            if(error) return res.status(400);
-            res.status(200).json({ ok: true });  
-        }); 
-    });
-})
-
+            if(error) return res.status(400).json({ status: `user could not be created due to sql errors: ${error}`});
+            res.status(200).json({ status: 'user was successfully created' });  
+        
+                }); 
+            });
+         });
 
 app.post('/login', (req, res)  =>{
     const crypto = req.body.password;
@@ -60,6 +64,9 @@ app.post('/login', (req, res)  =>{
 // router.use('*',handlers);
 
 let refreshTokens = []
+
+
+
 
 // app.post('/token', (req, res) => {
 //     const refresh_token = req.body.token
