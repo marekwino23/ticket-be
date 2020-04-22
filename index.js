@@ -2,7 +2,6 @@ require('dotenv').config();
 
 const express = require('express');
 const bcrypt = require("bcrypt");
-const saltRounds = 10;
 const cors = require('cors');
 const jwt = require('jsonwebtoken');
 const cookieParser = require('cookie-parser')
@@ -12,7 +11,8 @@ const app = express();
 const router = express.Router();
 
 app.use(cors({
-    origin: 'http://localhost:3000',
+    // origin: 'http://localhost:3000',
+    origin: 'https://cinema-tickets.netlify.app',
     methods: ['GET','PUT','POST','DELETE'],
     credentials: true
 }));
@@ -22,46 +22,64 @@ app.use(cookieParser());
 app.use(express.json());
 
 
-app.post('/register', (req, res) => {
-    db.query(`SELECT * FROM users where email="${req.body.email}"`, function (error, results, fields) {
-        if(error) return res.status(400).json({ status: 'email already used in registration'});
-        console.log("hi");
-        let saltRounds = 10
-        let myString = 'req.body.password'
-        db.query(`INSERT INTO users(name, email, password) VALUES("${req.body.name}","${req.body.email}", MD5("${myString}"))`, function (error, results, fields) {
+app.post('/register', async (req, res) => {
+    try {
+        const { name, email, password } = req.body;
+        await db.query(`SELECT * FROM users where email="${email}"`, async function (error, results, fields) {
+        if(error || results.length) return res.status(400).json({ status: 'email already used in registration'});
+        const hash = await bcrypt.hash(password, 10);
+        // await db('users').insert({email: email, hash: hash});
+        await db.query(`INSERT INTO users(name, email, password) VALUES("${name}","${email}", "${hash}")`, function (error, results, fields) {
             console.log('db login :', error, results, fields);
             if(error) return res.status(400).json({ status: `user could not be created due to sql errors: ${error}`});
-            res.status(200).json({ status: 'user was successfully created' });  
-        
-                }); 
-            });
-         });
-
-app.post('/login', (req, res)  =>{
-    const crypto = req.body.password;
-    db.query(`SELECT * FROM users where email="${req.body.email}" AND password="${crypto}"`, function (error, results, fields) {
-        console.log('db login :', error, results.length, fields);
-        if(error || !results.length) res.status(401).json({ error: 'user does not exist '});
-        else {
-            const signOptions = {
-                expiresIn: '1d',
-              };
-            const { access_token, refresh_token } = generateTokens(req.body, signOptions);
-            console.log('cheers: '. access_token);
-            const cookieOptions = {
-                httpOnly: true,
-                expires: new Date(Date.now() + 900000),
-                domain: '.app.localhost',
-                sameSite: 'none'
-            };
-            res.cookie('access_token', access_token, {...cookieOptions})
-            res.cookie('refresh_token', refresh_token, { ...cookieOptions, expires: new Date(Date.now() + 900000) });
-            res.status(200).json({ ok: true });
-        }
+           res.status(200).json({ status: 'success' });  
+        }); 
     });
+    } catch(error) {
+        res.status(500).json({ error: `something went wrong: ${error.message}`});
+    }
 });
 
-// router.use('*',handlers);
+app.post('/login', async (req, res)=> {
+
+    try {
+        const { email, password } = req.body;
+        //const user = await db('users').first('*').where({ email });
+        await db.query(`SELECT password FROM users where email="${email}"`, async function (error, results, fields) {
+        if(error || !results.length) return res.status(401).json({ status: 'email already used in registration'});
+        if(results.length) {
+            const validPass = await bcrypt.compare(password, results[0].password);
+            console.log('valid: ', validPass);
+            if(validPass) {
+                const signOptions = {
+                    expiresIn: '1d',
+                  };
+                const { access_token, refresh_token } = generateTokens(req.body, signOptions);
+            const week = 7 * 24 * 3600 * 1000; //1 weeks  
+            const cookieOptions = {
+                httpOnly: true,
+                secure: true,
+                expires: new Date(Date.now() + week),
+                //domain: '.app.localhost',
+                domain: 'cinema-tickets.netlify.app',
+                sameSite: 'none'
+                //sameSite: 'strict'
+            };
+            res.cookie('access_token', access_token, {...cookieOptions})
+            res.cookie('refresh_token', refresh_token, { ...cookieOptions, expires: new Date(Date.now() + (week * 4)) }); 
+            res.status(200).json({ ok: true });
+            } else {
+                res.send(400).json({ status: 'fail' });
+            }
+        }
+    });
+    } catch(error) {
+        res.status(500).json({ error: `something went wrong: ${error.message}`});
+    }
+}); 
+
+
+router.use('*',handlers);
 
 let refreshTokens = []
 
@@ -106,7 +124,7 @@ app.post('/refresh', (req, res)  =>{
 app.get('/miejsca', authenticateToken, function(req, res) {
     let records;
     console.log('req: ', req, req.signedCookies, req.cookies);
-    db.query('SELECT * FROM miejsca', function (error, results, fields) {
+    db.query('SELECT * FROM filmy', function (error, results, fields) {
         if (error) throw error;
         console.log('The solution is: ', results);
         records = [...results];
