@@ -24,6 +24,7 @@ app.use(express.json());
 
 app.post('/register', async (req, res) => {
     try {
+        console.log('cheers: ', req.body);
         const { name, email, password } = req.body;
         await db.query(`SELECT * FROM users where email="${email}"`, async function (error, results, fields) {
         if(error || results.length) return res.status(400).json({ status: 'email already used in registration'});
