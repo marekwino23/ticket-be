@@ -1,6 +1,6 @@
 var mysql      = require('mysql');
 var db = mysql.createConnection({
-  host     : '127.0.0.1',
+  host     : 'https://sheltered-oasis-25992.herokuapp.com',
   user     : 'root',
   password : '',
   database : 'mydb'
