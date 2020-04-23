@@ -1,9 +1,9 @@
 var mysql      = require('mysql');
 var db = mysql.createConnection({
-  host     : 'https://sheltered-oasis-25992.herokuapp.com',
-  user     : 'root',
-  password : '',
-  database : 'mydb'
+  host     : 'db4free.net',
+  user     : 'marek1996 ',
+  password : 'marek-1996',
+  database : 'mytickets'
 });
  
 db.connect(function(err){
