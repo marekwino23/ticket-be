@@ -153,7 +153,7 @@ function authenticateToken(req, res, next){
 })
 }
 
-app.listen(8000, function() {
+app.listen(process.env.PORT || 8000, function() {
     console.log('listen to port 8000: ');
 });
 
