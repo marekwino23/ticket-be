@@ -11,8 +11,8 @@ const app = express();
 const router = express.Router();
 
 app.use(cors({
-    // origin: 'http://localhost:3000',
-    origin: 'https://cinema-tickets.netlify.app',
+    origin: 'http://localhost:3000',
+    //origin: 'https://cinema-tickets.netlify.app',
     methods: ['GET','PUT','POST','DELETE'],
     credentials: true
 }));
@@ -62,9 +62,8 @@ app.post('/login', async (req, res)=> {
                 secure: true,
                 expires: new Date(Date.now() + week),
                 //domain: '.app.localhost',
-                domain: 'cinema-tickets.netlify.app',
+                //domain: 'cinema-tickets.netlify.app',
                 sameSite: 'none'
-                //sameSite: 'strict'
             };
             res.cookie('access_token', access_token, {...cookieOptions})
             res.cookie('refresh_token', refresh_token, { ...cookieOptions, expires: new Date(Date.now() + (week * 4)) }); 
@@ -122,18 +121,18 @@ app.post('/refresh', (req, res)  =>{
     res.json({accessToken, refreshToken })
 });
 
-app.get('/miejsca', authenticateToken, function(req, res) {
-    let records;
-    console.log('req: ', req, req.signedCookies, req.cookies);
-    db.query('SELECT * FROM filmy', function (error, results, fields) {
-        if (error) throw error;
-        console.log('The solution is: ', results);
-        records = [...results];
-        console.log('records: ', records);
-       res.json(records);
-      });
-    //   db.end();
-});
+// app.get('/miejsca', authenticateToken, function(req, res) {
+//     let records;
+//     console.log('req: ', req, req.signedCookies, req.cookies);
+//     db.query('SELECT * FROM filmy', function (error, results, fields) {
+//         if (error) throw error;
+//         console.log('The solution is: ', results);
+//         records = [...results];
+//         console.log('records: ', records);
+//        res.json(records);
+//       });
+//     //   db.end();
+// });
 
 function generateTokens(data, options= {}) {
     const access_token = jwt.sign(data, process.env.ACCESS_TOKEN_SECRET, options);
