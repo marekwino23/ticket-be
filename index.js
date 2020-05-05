@@ -13,14 +13,25 @@ const router = express.Router();
 app.use(cors({
     //origin: 'http://localhost:3000',
     origin: 'https://cinema-tickets.netlify.app',
-    methods: ['GET','PUT','POST','DELETE'],
+    //methods: ['GET','PUT','POST','DELETE'],
     credentials: true
 }));
 
 app.use(cookieParser());
 
-app.use(express.json());
+app.get('/movies', function(req, res) {
+    let records;
+    console.log('req: ', req, req.cookies);
+    db.query('SELECT * FROM filmy', function (error, results, fields) {
+        if (error) throw error;
+        console.log('The solution is: ', results);
+        records = [...results];
+        console.log('records: ', records);
+       res.json(records);
+      });
+});
 
+app.use(express.json());
 
 app.post('/register', async (req, res) => {
     try {
@@ -78,24 +89,7 @@ app.post('/login', async (req, res)=> {
     }
 });
 
-app.get('/movies', function(req, res) {
-    let records;
-    console.log('req: ', req, req.cookies);
-    db.query('SELECT * FROM filmy', function (error, results, fields) {
-        if (error) throw error;
-        console.log('The solution is: ', results);
-        records = [...results];
-        console.log('records: ', records);
-       res.json(records);
-      });
-});
-
-// router.use('*',handlers);
-
 let refreshTokens = []
-
-
-
 
 // app.post('/token', (req, res) => {
 //     const refresh_token = req.body.token
