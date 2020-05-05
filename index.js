@@ -63,7 +63,7 @@ app.post('/login', async (req, res)=> {
                 expires: new Date(Date.now() + week),
                 //domain: '.app.localhost',
                 domain: 'cinema-tickets.netlify.app',
-                // sameSite: 'lax'
+                sameSite: 'None'
             };
             res.cookie('access_token', access_token, {...cookieOptions})
             res.cookie('refresh_token', refresh_token, { ...cookieOptions, expires: new Date(Date.now() + (week * 4)) }); 
@@ -78,7 +78,7 @@ app.post('/login', async (req, res)=> {
     }
 });
 
-app.get('/miejsca', function(req, res) {
+app.get('/movies', function(req, res) {
     let records;
     console.log('req: ', req, req.cookies);
     db.query('SELECT * FROM filmy', function (error, results, fields) {
