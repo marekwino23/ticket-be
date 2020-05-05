@@ -11,8 +11,8 @@ const app = express();
 const router = express.Router();
 
 app.use(cors({
-    origin: 'http://localhost:3000',
-    //origin: 'https://cinema-tickets.netlify.app',
+    //origin: 'http://localhost:3000',
+    origin: 'https://cinema-tickets.netlify.app',
     methods: ['GET','PUT','POST','DELETE'],
     credentials: true
 }));
@@ -63,7 +63,7 @@ app.post('/login', async (req, res)=> {
                 expires: new Date(Date.now() + week),
                 //domain: '.app.localhost',
                 //domain: 'cinema-tickets.netlify.app',
-                sameSite: 'none'
+                sameSite: 'lax'
             };
             res.cookie('access_token', access_token, {...cookieOptions})
             res.cookie('refresh_token', refresh_token, { ...cookieOptions, expires: new Date(Date.now() + (week * 4)) }); 
