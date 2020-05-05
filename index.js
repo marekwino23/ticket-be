@@ -76,10 +76,21 @@ app.post('/login', async (req, res)=> {
     } catch(error) {
         res.status(500).json({ error: `something went wrong: ${error.message}`});
     }
-}); 
+});
 
+app.get('/miejsca', authenticateToken, function(req, res) {
+    let records;
+    console.log('req: ', req, req.signedCookies, req.cookies);
+    db.query('SELECT * FROM filmy', function (error, results, fields) {
+        if (error) throw error;
+        console.log('The solution is: ', results);
+        records = [...results];
+        console.log('records: ', records);
+       res.json(records);
+      });
+});
 
-router.use('*',handlers);
+// router.use('*',handlers);
 
 let refreshTokens = []
 
@@ -121,19 +132,6 @@ app.post('/refresh', (req, res)  =>{
     res.json({accessToken, refreshToken })
 });
 
-// app.get('/miejsca', authenticateToken, function(req, res) {
-//     let records;
-//     console.log('req: ', req, req.signedCookies, req.cookies);
-//     db.query('SELECT * FROM filmy', function (error, results, fields) {
-//         if (error) throw error;
-//         console.log('The solution is: ', results);
-//         records = [...results];
-//         console.log('records: ', records);
-//        res.json(records);
-//       });
-//     //   db.end();
-// });
-
 function generateTokens(data, options= {}) {
     const access_token = jwt.sign(data, process.env.ACCESS_TOKEN_SECRET, options);
     const refresh_token = jwt.sign(data, process.env.REFRESH_TOKEN_SECRET, { expiresIn: '30d'});
@@ -155,7 +153,5 @@ function authenticateToken(req, res, next){
 app.listen(process.env.PORT || 8000, function() {
     console.log('listen to port 8000: ');
 });
-
-// db.end();
 
 module.exports = app;
