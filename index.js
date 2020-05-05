@@ -62,7 +62,7 @@ app.post('/login', async (req, res)=> {
                 secure: true,
                 expires: new Date(Date.now() + week),
                 //domain: '.app.localhost',
-                //domain: 'cinema-tickets.netlify.app',
+                domain: 'cinema-tickets.netlify.app',
                 sameSite: 'lax'
             };
             res.cookie('access_token', access_token, {...cookieOptions})
@@ -78,9 +78,9 @@ app.post('/login', async (req, res)=> {
     }
 });
 
-app.get('/miejsca', authenticateToken, function(req, res) {
+app.get('/miejsca', function(req, res) {
     let records;
-    console.log('req: ', req, req.signedCookies, req.cookies);
+    console.log('req: ', req, req.cookies);
     db.query('SELECT * FROM filmy', function (error, results, fields) {
         if (error) throw error;
         console.log('The solution is: ', results);
