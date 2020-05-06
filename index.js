@@ -73,11 +73,11 @@ app.post('/login', async (req, res)=> {
                 secure: true,
                 expires: new Date(Date.now() + week),
                 //domain: '.app.localhost',
-                domain: '.netlify.app',
+                domain: 'cinema-tickets.netlify.app',
                 sameSite: 'None'
             };
-            res.cookie('access_token', access_token, {...cookieOptions})
-            res.cookie('refresh_token', refresh_token, { ...cookieOptions, expires: new Date(Date.now() + (week * 4)) }); 
+            res.cookie('access_token', 'hagsdhagsdhj', {...cookieOptions})
+            res.cookie('refresh_token', 'hjagsdjhagsjdh', { ...cookieOptions, expires: new Date(Date.now() + (week * 4)) }); 
             res.status(200).json({ ok: true });
             } else {
                 res.send(400).json({ status: 'fail' });
