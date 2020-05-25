@@ -1,13 +1,13 @@
 var mysql      = require('mysql');
 var db = mysql.createConnection({
-  // host     : 'db4free.net',
-  // user     : 'marek1996',
-  // password : 'marek-1996',
-  // database : 'mytickets'
-  host     : 'localhost',
-  user     : 'root',
-  password : '',
-  database : 'mydb'
+  host     : process.env.DB_HOST,
+  user     : process.env.DB_USER,
+  password : process.env.DB_PASS,
+  database : process.env.DB_DBNAME
+  // host     : 'localhost',
+  // user     : 'root',
+  // password : '',
+  // database : 'mydb'
 });
  
 db.connect(function(err){

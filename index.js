@@ -11,8 +11,7 @@ const app = express();
 const router = express.Router();
 
 app.use(cors({
-    origin: 'http://localhost:3000',
-    // origin: 'https://cinema-tickets.netlify.app',
+    origin: process.env.ORIGIN,
     methods: ['GET','PUT','POST','DELETE'],
     credentials: true
 }));
