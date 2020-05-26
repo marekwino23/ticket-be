@@ -57,7 +57,7 @@ app.post('/login', async (req, res)=> {
         const { email, password } = req.body;
         //const user = await db('users').first('*').where({ email });
         await db.query(`SELECT password FROM users where email="${email}"`, async function (error, results, fields) {
-        if(error || !results.length) return res.status(401).json({ status: 'email already used in registration'});
+        if(error || !results.length) return res.status(401).json({ status: 'user not found'});
         if(results.length) {
             const validPass = await bcrypt.compare(password, results[0].password);
             console.log('valid: ', validPass);
